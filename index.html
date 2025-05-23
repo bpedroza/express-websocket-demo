@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Websocket Demo</title>
+    <style>
+      body {
+        font-size: 16px;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      header, #main {
+        padding: 6px 12px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+      h2 {
+        font-size: 20px;
+      }
+
+      #add-attendee-form {
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        padding: 10px;
+      }
+
+      .input-group {
+        margin-bottom: 10px;
+      }
+
+      .input-group label{
+        margin-bottom: 5px;
+        display: block;
+      }
+
+      .input-group input {
+        width: 100%;
+        max-width: 250px;
+        padding: 4px 6px;
+        border: 1px solid #999;
+        border-radius: 3px;
+      }
+
+      button {
+        background: rgb(237, 251, 237);
+        border: 1px solid;
+        border-radius: 6px;
+        color: green;
+        padding: 6px 8px;
+        transition: ease-in-out .2s all;
+      }
+
+      button:hover {
+        background: #fff;
+        cursor: pointer;
+        transition: ease-in-out .2s all;
+      }
+
+      #error-alert {
+        width: 100%;
+        background:rgb(247, 229, 229);
+        color: red;
+        border: 1px solid;
+        border-radius: 6px;
+        opacity: 0;
+        height: 0px;
+        transition: ease-in-out .5s all;
+      }
+
+      #error-alert.active {
+        height: auto;
+        opacity: 1;
+        transition: ease-in-out .5s all;
+        margin-bottom: 10px;
+        padding: 10px;
+      }
+
+      #attendee-list {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      #attendee-list li {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 5px;
+        padding: 3px 6px
+      }
+
+      #attendee-list li:nth-child(2n) {
+        background-color: #efefef;
+      }
+
+      #attendee-list li button {
+        color:#999;
+        background: white;
+        padding: 3px 6px;
+        font-size: 14px;
+      }
+
+      #attendee-list li button:hover {
+        color: #333;
+      }
+
+      #status-bubble {
+        width: 20px;
+        height: 20px;
+        float: right;
+        border-radius: 50%;
+        background: red;
+        animation: breathe 2s infinite;
+      }
+
+      #status-bubble.online {
+        background: green;
+      }
+
+      @keyframes breathe {
+          0% {opacity: 1;}
+          50% {opacity: .45;}
+          100% {opacity: 1;}
+      }
+
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Websocket Attendee Demo <div title="offline" id="status-bubble">&nbsp;</div></div></h1>
+    </header>
+    <div id="main">
+        <form id="add-attendee-form">
+          <div id="error-alert">
+            Something Went Wrong!
+          </div>
+          <div class="input-group">
+              <label for="event-input" class="form-label">Event ID</label>
+              <input type="number" required class="form-control" id="event-input">
+          </div>
+          <div class="input-group">
+              <label for="email-input" class="form-label">Email address</label>
+              <input type="email" required class="form-control" id="email-input" placeholder="name@example.com">
+          </div>
+          <div class="input-group">
+              <label for="name-input" class="form-label">Name</label>
+              <input type="text" required class="form-control" id="name-input" placeholder="John Doe">
+          </div>
+          <button id="add-attendee">Add Attendee</button>
+        </form>
+        <div id="list-container">
+          <h2>Attendee List</h2>
+          <ul id="attendee-list">
+          </ul>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+  
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const eventId = urlParams.get('event') ?? 1;
+    const socket = io('ws://localhost:3000', {query: {eventId}});
+    const eventInput = document.getElementById('event-input');
+    const nameInput = document.getElementById('name-input');
+    const emailInput = document.getElementById('email-input');
+    const attendeeList = document.getElementById('attendee-list');
+    const errorBox = document.getElementById('error-alert');
+    const statusBuble = document.getElementById('status-bubble');
+
+    document.getElementById('add-attendee-form').addEventListener('submit', async function(e) {
+        errorBox.className = '';
+        e.preventDefault();
+        const response = await fetch("http://localhost:3000/attendee-signin", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ 
+            eventId: eventInput.value,
+            name: nameInput.value,
+            email: emailInput.value,
+          }),
+        });
+
+        if(response.status == 204) {
+          emailInput.value = eventInput.value = nameInput.value = '';
+        } else {
+          const json = await response.json();
+          errorBox.className = 'active';
+          errorBox.innerText = json.message ?? 'Oops! Something went wrong!';
+        }
+        
+    });
+
+    socket.on('attendee:signin', function(payload) {
+      addAttendee(payload);
+    });
+
+    socket.on('attendee:signout', function(payload) {
+      document.getElementById('attendee-' + payload.id).remove();
+    });
+
+    socket.on('event:invalid', function(payload) {
+      attendeeList.innerHTML = '';
+      addInvalidEventMessage();
+    });
+
+    socket.on('attendee:initialize', function(payload) {
+      attendeeList.innerHTML = '';
+      if(payload.length > 0) {
+        payload.forEach(addAttendee);
+      } else {
+        addNoAttendeeMessage();
+      }
+    });
+
+    socket.io.on("error", setStatusOffline);
+    socket.io.on("reconnect", setStatusOnline);
+    socket.on("connect", setStatusOnline);
+    socket.on("connect_error", setStatusOffline);
+    socket.on("disconnect", setStatusOffline);
+
+    function addNoAttendeeMessage() {
+      const listItem = document.createElement('li');
+      listItem.appendChild(document.createTextNode('No Attendees Yet.'));
+      attendeeList.appendChild(listItem);
+    }
+
+    function addInvalidEventMessage() {
+      const listItem = document.createElement('li');
+      listItem.appendChild(document.createTextNode('Invalid Event'));
+      attendeeList.appendChild(listItem);
+    }
+
+    function addAttendee(payload) {
+      const listItem = document.createElement('li');
+      const name = document.createElement('span');
+      name.appendChild(document.createTextNode(`${payload.name} (${payload.email})`))
+      const leaveButton = document.createElement('button');
+      leaveButton.addEventListener('click', function() {
+        fetch("http://localhost:3000/attendee-signout", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ 
+            eventId: eventId,
+            attendeeId: payload.id
+          }),
+        });
+      });
+      leaveButton.appendChild(document.createTextNode('Check Out'))
+      listItem.appendChild(name);
+      listItem.appendChild(leaveButton);
+      listItem.id = 'attendee-' + payload.id;
+      attendeeList.appendChild(listItem);
+    }
+
+    function setStatusOnline() {
+      statusBuble.className = 'online';
+      statusBuble.title = 'Online';
+    }
+
+    function setStatusOffline() {
+      statusBuble.className = '';
+      statusBuble.title = 'Offline';
+    }
+
+    addNoAttendeeMessage();
+    </script>
+    </body>
+</html>
