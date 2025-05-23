@@ -3,11 +3,11 @@
 This is just a demo app that implements websockets on a node.js server using express.
 
 ## Local Setup:
-1 Clone the repo
-2 CD into directory
-3 `npm install`
-4 `node index.js`
-5 visit localhost:3000 in your browser.
+1. Clone the repo
+2. CD into directory
+3. `npm install`
+4. `node index.js`
+5. visit localhost:3000 in your browser.
 
 ## Usage
 
