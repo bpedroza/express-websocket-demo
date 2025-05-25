@@ -90,7 +90,7 @@ app.post('/attendee-signout', express.json(), (req, res) => {
 
 ws.on('connection', (socket) => {
     const eventId = socket.handshake.query.eventId ?? -1;
-    console.log('A User Connected for event: ' + eventId);
+    console.log('A user connected for event: ' + eventId);
     if(eventExists(eventId)) {
       socket.emit('attendee:initialize', events[eventId].attendees);
       eventBus.on('attendee:signin', (payload) => {
