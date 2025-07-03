@@ -1,9 +1,12 @@
 services:
   nginx:
     restart: always
-    build:
-      dockerfile: Dockerfile.dev
-      context: ./nginx
+    image: nginx
+    depends_on:
+      - node
+      - client
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
     ports:
       - '4000:80'
   node:
@@ -13,3 +16,10 @@ services:
     volumes:
       - /app/node_modules
       - ./node:/app
+  client:
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./client
+    volumes:
+      - /app/node_modules
+      - ./client:/app

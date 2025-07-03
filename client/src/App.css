@@ -1,0 +1,110 @@
+header,
+#main {
+  padding: 6px 12px;
+}
+
+h1 {
+  font-size: 24px;
+}
+
+h2 {
+  font-size: 20px;
+}
+
+#add-attendee-form {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 10px;
+}
+
+.input-group {
+  margin-bottom: 10px;
+}
+
+.input-group label {
+  margin-bottom: 5px;
+  display: block;
+}
+
+.input-group input {
+  width: 100%;
+  max-width: 250px;
+  padding: 4px 6px;
+  border: 1px solid #999;
+  border-radius: 3px;
+}
+
+#error-alert {
+  width: 100%;
+  background: rgb(247, 229, 229);
+  color: red;
+  border: 1px solid;
+  border-radius: 6px;
+  opacity: 0;
+  height: 0px;
+  transition: ease-in-out .5s all;
+}
+
+#error-alert.active {
+  height: auto;
+  opacity: 1;
+  transition: ease-in-out .5s all;
+  margin-bottom: 10px;
+  padding: 10px;
+}
+
+#attendee-list {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+#attendee-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 5px;
+  padding: 3px 6px
+}
+
+#attendee-list li:nth-child(2n) {
+  background-color: #2e2d2d;
+}
+
+#attendee-list li button {
+  padding: 3px 6px;
+  font-size: 14px;
+}
+
+#attendee-list li button:hover {
+  color: #333;
+}
+
+#status-bubble {
+  width: 20px;
+  height: 20px;
+  float: right;
+  border-radius: 50%;
+  background: red;
+  animation: breathe 2s infinite;
+  margin-left: 5px;
+  margin-top: 5px;
+}
+
+#status-bubble.online {
+  background: green;
+}
+
+@keyframes breathe {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: .45;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
