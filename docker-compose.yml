@@ -16,6 +16,8 @@ services:
     volumes:
       - /app/node_modules
       - ./node:/app
+    depends_on:
+      - redis
   client:
     build:
       dockerfile: Dockerfile.dev
@@ -23,3 +25,5 @@ services:
     volumes:
       - /app/node_modules
       - ./client:/app
+  redis:
+    image: redis:8.0-rc1

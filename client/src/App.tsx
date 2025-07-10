@@ -7,7 +7,7 @@ import { useWebhookStatus } from './hooks/useWebsocketStatus.ts';
 async function addAttendeeAction(prevState: { success: boolean, message: string }, formData: FormData): Promise<{ success: boolean, message: string }> {
 
   try {
-    const response = await fetch("/api/attendee-signin", {
+    const response = await fetch("/api/attendee/signin", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -48,7 +48,7 @@ function App({ eventId }: {eventId: number}) {
 
   useEffect(() => {
     const  addAttendee = (payload: Attendee) => {
-      setAttendees((curr) => {
+      setAttendees((curr: Attendee[]) => {
         return [...curr, payload];
       });
     }
@@ -57,7 +57,7 @@ function App({ eventId }: {eventId: number}) {
     }
 
     const removeAttendee = (payload: Attendee) => {
-      setAttendees((curr) => {
+      setAttendees((curr: Attendee[]) => {
         return curr.filter((el) => el.id != payload.id)
       });
     }
@@ -74,7 +74,7 @@ function App({ eventId }: {eventId: number}) {
   }, []);
 
   const handleLeave = (payload: Attendee) => {
-    fetch("/api/attendee-signout", {
+    fetch("/api/attendee/signout", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
