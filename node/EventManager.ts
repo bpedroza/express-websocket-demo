@@ -58,9 +58,7 @@ export default class EventManager {
 
     private async getEvent(eventId: number): Promise<Event|null>
     {
-        console.log('event:' + eventId.toString());
         const res = await redisClient.get('event:' + eventId.toString());
-        console.log(res);
         if(res && res.length > 0) {
             return JSON.parse(res.toString());
         }
