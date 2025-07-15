@@ -1,0 +1,181 @@
+:root {
+  --primary: rgb(0 211 144);
+  --primary-compliment: rgb(0 76 57);
+  --primary-2: rgb(0 186 254);
+  --primary-2-compliment: rgb(4 46 73);
+  --error: rgb(255 88 97);
+  --error-compliment:rgb(253, 242, 243);
+  --bg: #fff;
+  --secondary-bg: #f0f0f0;
+  --text-color: #0e0e0e;
+}
+
+body, html {
+  width: 100%;
+}
+body {
+  background-color: #fff;
+  font-size: 16px;
+  color: var(--text-color);
+  margin: 0;
+  font-family: system-ui, -apple-system, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+header,
+main {
+  padding: 6px 12px;
+}
+
+h1 {
+  font-size: 24px;
+}
+
+h2 {
+  font-size: 20px;
+}
+
+header {
+  border-bottom: 1px solid #ccc;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f9f9f9;
+}
+
+header #nav-title {
+  font-size: 22px;
+}
+
+#nav-links a {
+  text-decoration: none;
+  color: var(--text-color);
+  display: inline-block;
+  margin-left: 16px;
+}
+
+#nav-links a:hover {
+  cursor: pointer;
+  text-decoration: underline;
+  color: var(--primary-2);
+}
+
+#add-attendee-form {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 10px;
+}
+
+.input-group {
+  margin-bottom: 10px;
+}
+
+.input-group label {
+  margin-bottom: 5px;
+  display: block;
+}
+
+.input-group input {
+  width: 100%;
+  max-width: 250px;
+  padding: 4px 6px;
+  border: 1px solid #999;
+  border-radius: 3px;
+}
+
+#error-alert {
+  width: 100%;
+  background: var(--error-compliment);
+  color: var(--error);
+  border: 1px solid;
+  border-radius: 6px;
+  opacity: 0;
+  height: 0px;
+  transition: ease-in-out .5s all;
+}
+
+#error-alert.active {
+  height: auto;
+  opacity: 1;
+  transition: ease-in-out .5s all;
+  margin-bottom: 10px;
+  padding: 10px;
+}
+
+#attendee-list {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+#attendee-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 5px;
+  padding: 3px 6px
+}
+
+#attendee-list li:nth-child(2n) {
+  background-color: var(--secondary-bg);
+}
+
+#attendee-list li button {
+  padding: 3px 6px;
+  font-size: 14px;
+}
+
+#attendee-list li button:hover {
+  color: #333;
+}
+
+#status-bubble {
+  width: 20px;
+  height: 20px;
+  float: right;
+  border-radius: 50%;
+  background: red;
+  animation: breathe 2s infinite;
+  margin-left: 5px;
+  margin-top: 2px;
+}
+
+#status-bubble.online {
+  background: var(--primary);
+}
+
+button {
+  outline: none;
+  border: none;
+  border-radius: 8px;
+  color: var(--primary-2-compliment);
+  background-color: var(--primary-2);
+  padding: 8px 16px;
+}
+
+button:hover {
+  cursor: pointer;
+  opacity: 0.85
+}
+
+button.sm {
+  padding: 6px 12px;
+  font-size: 85%;
+}
+
+@keyframes breathe {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: .45;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
