@@ -5,6 +5,7 @@ export default class EventSeeder {
     const eventManager = new EventManager();
     const events = {
       1: {
+        name: 'Hike through the Grand Canyon',
         maxAttendeeId: 22,
         attendees: [{
           id: 1,
@@ -33,7 +34,8 @@ export default class EventSeeder {
         },
         ]
       },
-      17: {
+      2: {
+        name: 'Technology and Java - Morning Coffee Tech Talks',
         maxAttendeeId: 2,
         attendees: [{
           id: 2,

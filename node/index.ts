@@ -20,9 +20,7 @@ ws.on('connection', async (socket) => {
     const exists = await eventManager.exists(eventId);
     console.log('A user connected for event: ' + eventId);
     if(exists) {
-      socket.on('event:initialize', async () => {
-        socket.emit('attendee:initialize', await eventManager.getAttendees(eventId));
-      })
+      socket.emit('attendee:initialize', await eventManager.getAttendees(eventId));
       
       eventBus.on('attendee:signin', (payload) => {
         if(payload.eventId == eventId) {

@@ -1,7 +1,7 @@
-import { useActionState, useEffect, useState } from 'react';
-import type { Attendee } from '../types/Attendee';
-import { socket } from '../socket.ts';
+import { useActionState, useContext} from 'react';
 import { useParams } from 'react-router';
+import AttendeeList from '../components/AttendeeList.tsx';
+import { SocketContext } from '../context/SocketContext.ts';
 
 async function addAttendeeAction(prevState: { success: boolean, message: string }, formData: FormData): Promise<{ success: boolean, message: string }> {
 
@@ -41,56 +41,13 @@ async function addAttendeeAction(prevState: { success: boolean, message: string 
 }
 
 function EventAdmin() {
-  const { eventId } = useParams();
-  const [attendees, setAttendees] = useState<Attendee[]>([]);
+  const { eventId = '-1' } = useParams<'eventId'>();
   const [formState, formAction, isPending] = useActionState(addAttendeeAction, { success: true, message: '' });
-
-  useEffect(() => {
-    socket.emit('event:initialize');
-    const  addAttendee = (payload: Attendee) => {
-      setAttendees((curr: Attendee[]) => {
-        return [...curr, payload];
-      });
-    }
-    const addAllAttendees = (payload: Attendee[]) => {
-      setAttendees([...payload]);
-    }
-
-    const removeAttendee = (payload: Attendee) => {
-      setAttendees((curr: Attendee[]) => {
-        return curr.filter((el) => el.id != payload.id)
-      });
-    }
-
-    socket.on('attendee:initialize', addAllAttendees);
-    socket.on('attendee:signin', addAttendee);
-    socket.on('attendee:signout', removeAttendee);
-
-    return () => {
-      socket.off('attendee:signin', addAttendee);
-      socket.off('attendee:initialize', addAllAttendees);
-      socket.off('attendee:signout', removeAttendee);
-    }
-  }, []);
-
-  const handleLeave = (payload: Attendee) => {
-    fetch("/api/attendee/signout", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ 
-            eventId: eventId,
-            attendeeId: payload.id
-          }),
-        });
-  }
+  const { attendees } = useContext(SocketContext);
 
   return (
     <>
-      <header>
-        <h1>Websocket Attendee Demo</h1>
-      </header>
+      <h1>Websocket Attendee Demo</h1>
       <div id="main">
         <form action={formAction}>
           <div id="error-alert" className={formState.success === false ? 'active' : ''}>
@@ -112,12 +69,7 @@ function EventAdmin() {
         </form>
         <div id="list-container">
           <h2>Attendee List</h2>
-          <ul id="attendee-list">
-            {attendees.length === 0 && <li>No Attendees Yet.</li>}
-            {attendees.map((attendee: Attendee) =>
-              (<li key={attendee.id}>{attendee.name} <button onClick={() => handleLeave(attendee)}>Leave</button></li>)
-            )}
-          </ul>
+          <AttendeeList attendees={attendees} eventId={eventId} canRemove={true} />
         </div>
       </div>
     </>

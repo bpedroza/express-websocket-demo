@@ -4,7 +4,9 @@ function LoggedOut() {
   return (
     <>
       <header>
-        WebPolls
+        <div id="nav-left">
+          <span id="nav-title">WebPolls</span>
+        </div>
       </header>
       <main>
         <Outlet />

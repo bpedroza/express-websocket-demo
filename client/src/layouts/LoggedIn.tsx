@@ -1,20 +1,19 @@
-import { NavLink, Outlet, useParams } from "react-router";
-import { useWebhookStatus } from "../hooks/useWebsocketStatus";
+import { Outlet, useParams } from "react-router";
+import LoggedInHeader from "../components/LoggedInHeader";
+import { SocketProvider } from "../context/SocketProvider";
 
 function LoggedIn() {
-  const { eventId } = useParams();
-  const isOnline = useWebhookStatus();
+  const { eventId = '' } = useParams();
+
   return (
     <>
-      <header>
-        WebPolls
-        <NavLink to={`/event/${eventId}`}>Event Home</NavLink>
-        <NavLink to={`/event/${eventId}/admin`}>Event Admin</NavLink>
-        <div title={isOnline ? 'Online' : 'Offline'} className={isOnline ? 'online' : ''} id="status-bubble">&nbsp;</div>
-      </header>
-      <main>
-        <Outlet />
-      </main>
+      <SocketProvider>
+        <LoggedInHeader eventId={eventId} />
+        <main>
+          <Outlet />
+        </main>
+      </SocketProvider>
+
     </>
   );
 }

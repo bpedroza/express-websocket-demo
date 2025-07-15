@@ -10,9 +10,8 @@ This is just a demo app that implements websockets on a node.js server using exp
 
 ## Usage
 
-- You can add or remove people using the form at the top of the page.
-- Change which event you're viewing with url param event - eg. localhost:4000?event=17
-- IDs are hardcoded for this demo, the only valid event IDs are 1 and 17.
+- You can add or remove people using the form on the admin page.
+- You can change which events are available by editing the node/EventSeeder.ts data to seed the demo data.
 
 ### TODO
 Test wss? Not sure how to do that locally yet.
