@@ -14,15 +14,15 @@ class EventManager {
         redisClient.set('event:' + eventId.toString(), JSON.stringify(event));
     }
 
-    public async addAttendee(eventId: number, attendee: Attendee): Promise<number | boolean> {
+    public async addAttendee(eventId: number, attendee: Attendee): Promise<number> {
         const event = await this.getEvent(eventId);
         if(null === event) {
-            return false;
+            return -1;
         }
 
         const attendees = await this.getAttendees(eventId);
         if(attendees.findIndex((curr: Attendee) => curr.email === attendee.email) !== -1) {
-            return false;
+            return -1;
         }
 
         event.maxAttendeeId++;
