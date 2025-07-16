@@ -2,8 +2,11 @@ import { redisClient } from "./redisClient.ts";
 import type { Attendee } from "./types/Attendee.ts";
 import type { Event } from "./types/Event.ts";
 
-export default class EventManager {
-    public async exists(eventId: number): Promise<boolean> {
+class EventManager {
+    public async exists(eventId: number | undefined): Promise<boolean> {
+        if(typeof(eventId) === 'undefined') {
+            return false;
+        }
         return await this.getEvent(eventId) !== null;
     }
 
@@ -11,7 +14,7 @@ export default class EventManager {
         redisClient.set('event:' + eventId.toString(), JSON.stringify(event));
     }
 
-    public async addAttendee(eventId: number, attendee: Attendee): Promise<boolean> {
+    public async addAttendee(eventId: number, attendee: Attendee): Promise<number | boolean> {
         const event = await this.getEvent(eventId);
         if(null === event) {
             return false;
@@ -28,7 +31,7 @@ export default class EventManager {
         event.attendees = attendees;
 
         redisClient.set('event:' + eventId.toString(), JSON.stringify(event));
-        return true;
+        return attendee.id;
     }
 
     public async getAttendees(eventId: number): Promise<Attendee[]> {
@@ -66,3 +69,7 @@ export default class EventManager {
         return null;
     }
 }
+
+const eventManager = new EventManager();
+
+export default eventManager;

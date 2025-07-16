@@ -1,40 +1,38 @@
 import express from 'express';
 import { createServer } from 'node:http';
 import { Server } from 'socket.io';
-import { eventBus } from './utils/eventBus.js';
 import { attendeeRouter } from './routes/attendees.ts';
-import EventManager from './EventManager.ts';
+import { attendeeHandler } from './socket_handlers/attendees.ts';
+import eventManager from './EventManager.ts';
 import EventSeeder from './EventSeeder.ts';
+import session from "express-session";
+import type { SessionSocket } from './types/SocketSession.ts';
 
 const app = express();
 const server = createServer(app);
 const ws = new Server(server);
-const eventManager = new EventManager();
+const sessionMiddleware = session({
+  secret: 'itsMyLittleSecret',
+  cookie: {},
+  saveUninitialized: false
+});
+app.use(sessionMiddleware);
+ws.engine.use(sessionMiddleware);
+
 // For development only.
 EventSeeder.seed();
 
 app.use('/attendee', attendeeRouter);
 
-ws.on('connection', async (socket) => {
-    const eventId = parseInt(socket.handshake.query.eventId?.toString() ?? '-1');
+ws.on('connection', async (socket: SessionSocket) => {
+    const eventId = socket.request.session.eventId;
     const exists = await eventManager.exists(eventId);
-    console.log('A user connected for event: ' + eventId);
+    console.log('A user attempted to connect for event: ' + eventId);
     if(exists) {
-      socket.emit('attendee:initialize', await eventManager.getAttendees(eventId));
-      
-      eventBus.on('attendee:signin', (payload) => {
-        if(payload.eventId == eventId) {
-          socket.emit('attendee:signin', payload.attendee);
-        }
-      });
-
-      eventBus.on('attendee:signout', (payload) => {
-        if(payload.eventId == eventId) {
-          socket.emit('attendee:signout', {id: payload.attendeeId});
-        }
-      });
+      attendeeHandler(socket, eventId);
     } else {
       socket.emit('event:invalid');
+      socket.disconnect();
     }
 });
 

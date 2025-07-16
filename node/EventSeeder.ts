@@ -1,8 +1,7 @@
-import EventManager from "./EventManager.ts";
+import eventManager from "./EventManager.ts";
 
 export default class EventSeeder {
   public static seed() {
-    const eventManager = new EventManager();
     const events = {
       1: {
         name: 'Hike through the Grand Canyon',

@@ -1,20 +1,26 @@
 import express from "express";
-import EventManager from '../EventManager.ts';
-import { eventBus } from '../utils/eventBus.js';
+import eventManager from '../EventManager.ts';
+import { eventBus } from '../utils/eventBus.ts';
 
 const router = express.Router();
-const eventManager = new EventManager();
 
-router.post('/signin', express.json(), (req, res) => {
-  const eventId = req.body.eventId ?? -1;
+router.post('/check-in', express.json(), async (req, res) => {
+  const eventId = req.body.eventId ?? undefined;
   const attendee = {
     id: -1,
     email: req.body.email,
     name: req.body.name
   };
+  const id = await eventManager.addAttendee(eventId, attendee);
 
-  if (eventManager.addAttendee(eventId, attendee)) {
+  if (id !== false) {
     eventBus.emit('attendee:signin', { eventId: req.body.eventId, attendee });
+    const isAdmin = req.session.isAdmin ?? false;
+    if (!isAdmin) {
+      req.session.id = id.toString();
+      req.session.eventId = eventId;
+      req.session.isAdmin = req.body.isAdmin ?? false;
+    }
     return res.status(204).send();
   }
 
@@ -25,8 +31,15 @@ router.post('/signout', express.json(), (req, res) => {
   const eventId = req.body.eventId ?? -1;
   const attendeeId = req.body.attendeeId ?? -1;
   if (eventManager.removeAttendee(eventId, attendeeId)) {
-      eventBus.emit('attendee:signout', { eventId: req.body.eventId, attendeeId });
-      return res.status(204).send();
+    eventBus.emit('attendee:signout', { eventId: req.body.eventId, attendeeId });
+    req.session.destroy(err => {
+      if (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Error logging out' });
+      } else {
+        res.json({ message: 'Logged out successfully' });
+      }
+    });
   }
 
   return res.status(422).json({ 'message': 'Invalid Event or Attendee ID' });
