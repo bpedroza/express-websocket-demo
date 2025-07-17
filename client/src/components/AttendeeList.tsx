@@ -2,7 +2,7 @@ import type { Attendee } from '../types/Attendee';
 
 function AttendeeList({ attendees, eventId = '-1', canRemove }: {attendees: Attendee[], eventId?: string, canRemove: boolean}) {
     const handleLeave = (payload: Attendee) => {
-        fetch("/api/attendee/signout", {
+        fetch("/api/attendee/check-out", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

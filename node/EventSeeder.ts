@@ -6,6 +6,12 @@ export default class EventSeeder {
       1: {
         name: 'Hike through the Grand Canyon',
         maxAttendeeId: 22,
+        maxPollId: 1,
+        polls: [{
+          question: 'Are you having fun?',
+          options: ['Yes', 'No', 'I\'m getting there'],
+          answers: [{option: 'Yes', count: 12}, {option: 'No', count: 1}, {option: 'I\'m getting there', count: 3}]
+        }],
         attendees: [{
           id: 1,
           email: 'johndoe@example.com',
@@ -36,6 +42,7 @@ export default class EventSeeder {
       2: {
         name: 'Technology and Java - Morning Coffee Tech Talks',
         maxAttendeeId: 2,
+        maxPollId: 0,
         attendees: [{
           id: 2,
           email: 'janedoe@example.com',

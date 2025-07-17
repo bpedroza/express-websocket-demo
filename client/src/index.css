@@ -25,9 +25,13 @@ body {
   box-sizing: border-box;
 }
 
-header,
+
 main {
   padding: 6px 12px;
+}
+
+header {
+  padding: 12px 12px;
 }
 
 h1 {
@@ -63,6 +67,34 @@ header #nav-title {
   color: var(--primary-2);
 }
 
+.nav-tabs-container {
+  display: flex;
+  justify-content: center;
+}
+
+.nav-tabs {
+  background: var(--secondary-bg);
+  border-radius: 16px;
+  display: flex;
+  padding: 6px 12px;
+  align-items: center;
+  justify-content: space-around;
+}
+.nav-tabs .nav-item {
+  background: transparent;
+  color: var(--text-color);
+}
+
+.nav-tabs .nav-item:hover {
+  cursor: pointer;
+}
+
+.nav-tabs .nav-item.active {
+  background: #fff;
+  border-radius: 10px;
+  padding: 8px 16px;
+}
+
 #add-attendee-form {
   border: 1px solid #ccc;
   border-radius: 6px;
@@ -78,10 +110,10 @@ header #nav-title {
   display: block;
 }
 
-.input-group input {
+.input-group input, .input {
   width: 100%;
   max-width: 250px;
-  padding: 4px 6px;
+  padding: 6px 6px;
   border: 1px solid #999;
   border-radius: 3px;
 }
@@ -161,9 +193,25 @@ button:hover {
   opacity: 0.85
 }
 
+button.outline {
+  background-color: transparent;
+  border: 1px solid;
+  border-color: var(--primary-2);
+  color: var(--primary-2);
+}
+
+button.danger {
+  background: var(--error-compliment);
+  color: var(--error);
+}
+
 button.sm {
   padding: 6px 12px;
   font-size: 85%;
+}
+
+table td {
+  padding: 8px;
 }
 
 @keyframes breathe {

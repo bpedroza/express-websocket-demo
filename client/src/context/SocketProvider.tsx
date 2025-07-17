@@ -11,10 +11,14 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     const [isConnected, setIsConnected] = useState<boolean>(false);
     const [attendees, setAttendees] = useState<Attendee[]>([]);
     const [polls, setPolls] = useState<string[]>([]);
+    const [eventIsValid, setEventIsValid] = useState<boolean>(true);
 
     useEffect(() => {
         socket.io.on("error", () => setIsConnected(false));
-        socket.on("connect", () => setIsConnected(true));
+        socket.on("connect", () => {
+            setIsConnected(true);
+            setEventIsValid(true);
+        });
         socket.on("disconnect", () => setIsConnected(false));
 
         socket.on('attendee:initialize', (payload: Attendee[]) => {
@@ -30,6 +34,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
                 return curr.filter((el) => el.id != payload.id)
             });
         });
+        socket.on('event:invalid', () => setEventIsValid(false));
 
         return () => {
             socket.io.off("error");
@@ -44,6 +49,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     const contextValue = {
         socket,
         isConnected,
+        eventIsValid,
         attendees,
         polls
     };

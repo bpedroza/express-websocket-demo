@@ -1,6 +1,7 @@
 import { redisClient } from "./redisClient.ts";
 import type { Attendee } from "./types/Attendee.ts";
 import type { Event } from "./types/Event.ts";
+import type { Poll } from "./types/Poll.ts";
 
 class EventManager {
     public async exists(eventId: number | undefined): Promise<boolean> {
@@ -34,10 +35,33 @@ class EventManager {
         return attendee.id;
     }
 
+    public async addPoll(eventId: number, poll: Poll): Promise<number> {
+        const event = await this.getEvent(eventId);
+        if(null === event) {
+            return -1;
+        }
+
+        const polls = await this.getPolls(eventId);
+
+        event.maxPollId++;
+        poll.id = event.maxPollId;
+        polls.push(poll);
+        event.polls = polls;
+        redisClient.set('event:' + eventId.toString(), JSON.stringify(event));
+
+        return poll.id;
+    }
+
     public async getAttendees(eventId: number): Promise<Attendee[]> {
         const event = await this.getEvent(eventId);
 
         return event?.attendees ?? [];
+    }
+
+    public async getPolls(eventId: number): Promise<Poll[]> {
+        const event = await this.getEvent(eventId);
+
+        return event?.polls ?? [];
     }
 
     public async removeAttendee(eventId: number, attendeeId: number): Promise<boolean> {

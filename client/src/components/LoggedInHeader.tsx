@@ -1,9 +1,18 @@
-import { useContext } from "react";
-import { NavLink } from "react-router";
+import { useContext, useEffect } from "react";
+import { NavLink, useNavigate } from "react-router";
 import { SocketContext } from "../context/SocketContext";
 
 function LoggedInHeader({ eventId }: { eventId: string }) {
-  const { isConnected } = useContext(SocketContext);
+  const { isConnected, eventIsValid } = useContext(SocketContext);
+  const nav = useNavigate();
+
+  useEffect(() => {
+    if (!eventIsValid) {
+
+      nav('/');
+    }
+  }, [eventIsValid])
+
   return (
     <header>
       <div id="nav-left">

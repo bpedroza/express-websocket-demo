@@ -6,7 +6,7 @@ This is just a demo app that implements websockets on a node.js server using exp
 1. Clone the repo
 2. CD into the project directory
 3. Run `docker compose up --build`
-4. Visit localhost:4000 in your browser
+4. Visit localhost:4000/?event=1 in your browser
 
 ## Usage
 

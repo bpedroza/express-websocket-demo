@@ -7,6 +7,7 @@ export const socket = io(wsUrl, {path: '/api/socket.io'});
 export type SocketContextProps = {
     socket: Socket;
     isConnected: boolean;
+    eventIsValid: boolean;
     attendees: Attendee[];
     polls: string[];
 }
@@ -14,6 +15,7 @@ export type SocketContextProps = {
 export const SocketContext = createContext<SocketContextProps>({
     socket,
     isConnected: false,
+    eventIsValid: true,
     attendees: [],
     polls: []
 });
