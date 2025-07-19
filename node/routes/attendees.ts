@@ -11,13 +11,13 @@ router.post('/check-in', express.json(), async (req, res) => {
     email: req.body.email,
     name: req.body.name
   };
-  const id = await eventManager.addAttendee(eventId, attendee);
+  attendee.id = await eventManager.addAttendee(eventId, attendee);
 
-  if (id !== -1) {
+  if (attendee.id !== -1) {
     eventBus.emit('attendee:signin', { eventId: req.body.eventId, attendee });
     const isAdmin = req.session.isAdmin ?? false;
     if (!isAdmin) {
-      req.session.userId = id;
+      req.session.userId = attendee.id;
       req.session.eventId = eventId;
       req.session.isAdmin = req.body.isAdmin ?? false;
     }

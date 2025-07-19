@@ -2,6 +2,7 @@ import type React from 'react';
 import { SocketContext, socket } from './SocketContext';
 import { useEffect, useState } from 'react';
 import type { Attendee } from '../types/Attendee';
+import type { Poll } from '../types/Poll';
 
 export type SocketProviderProps = {
     children: React.ReactNode
@@ -10,7 +11,7 @@ export type SocketProviderProps = {
 export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     const [isConnected, setIsConnected] = useState<boolean>(false);
     const [attendees, setAttendees] = useState<Attendee[]>([]);
-    const [polls, setPolls] = useState<string[]>([]);
+    const [polls, setPolls] = useState<Poll[]>([]);
     const [eventIsValid, setEventIsValid] = useState<boolean>(true);
 
     useEffect(() => {
@@ -34,6 +35,16 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
                 return curr.filter((el) => el.id != payload.id)
             });
         });
+
+        socket.on('poll:initialize', (payload: Poll[]) => {
+            setPolls([...payload]);
+        });
+        socket.on('poll:created', (payload: Poll) => {
+            setPolls((curr: Poll[]) => {
+                return [...curr, payload];
+            });
+        });
+
         socket.on('event:invalid', () => setEventIsValid(false));
 
         return () => {

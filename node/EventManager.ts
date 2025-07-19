@@ -4,94 +4,93 @@ import type { Event } from "./types/Event.ts";
 import type { Poll } from "./types/Poll.ts";
 
 class EventManager {
-    public async exists(eventId: number | undefined): Promise<boolean> {
-        if(typeof(eventId) === 'undefined') {
-            return false;
-        }
-        return await this.getEvent(eventId) !== null;
+  public async exists(eventId: number | undefined): Promise<boolean> {
+    if (typeof (eventId) === 'undefined') {
+      return false;
+    }
+    return await this.getEvent(eventId) !== null;
+  }
+
+  public addEvent(eventId: number, event: Event) {
+    redisClient.set('event:' + eventId.toString(), JSON.stringify(event));
+  }
+
+  public async addAttendee(eventId: number, attendee: Attendee): Promise<number> {
+    const event = await this.getEvent(eventId);
+    if (null === event) {
+      return -1;
     }
 
-    public addEvent(eventId: number, event: Event) {
-        redisClient.set('event:' + eventId.toString(), JSON.stringify(event));
+    const attendees = await this.getAttendees(eventId);
+    if (attendees.findIndex((curr: Attendee) => curr.email === attendee.email) !== -1) {
+      return -1;
     }
 
-    public async addAttendee(eventId: number, attendee: Attendee): Promise<number> {
-        const event = await this.getEvent(eventId);
-        if(null === event) {
-            return -1;
-        }
+    event.maxAttendeeId++;
+    attendee.id = event.maxAttendeeId;
+    attendees.push(attendee);
+    event.attendees = attendees;
 
-        const attendees = await this.getAttendees(eventId);
-        if(attendees.findIndex((curr: Attendee) => curr.email === attendee.email) !== -1) {
-            return -1;
-        }
+    redisClient.set('event:' + eventId.toString(), JSON.stringify(event));
+    return attendee.id;
+  }
 
-        event.maxAttendeeId++;
-        attendee.id = event.maxAttendeeId;
-        attendees.push(attendee);
-        event.attendees = attendees;
-
-        redisClient.set('event:' + eventId.toString(), JSON.stringify(event));
-        return attendee.id;
+  public async addPoll(eventId: number, poll: Poll): Promise<number> {
+    const event = await this.getEvent(eventId);
+    if (null === event) {
+      return -1;
     }
 
-    public async addPoll(eventId: number, poll: Poll): Promise<number> {
-        const event = await this.getEvent(eventId);
-        if(null === event) {
-            return -1;
-        }
+    const polls = await this.getPolls(eventId);
 
-        const polls = await this.getPolls(eventId);
+    event.maxPollId++;
+    poll.id = event.maxPollId;
+    polls.push(poll);
+    event.polls = polls;
+    redisClient.set('event:' + eventId.toString(), JSON.stringify(event));
 
-        event.maxPollId++;
-        poll.id = event.maxPollId;
-        polls.push(poll);
-        event.polls = polls;
-        redisClient.set('event:' + eventId.toString(), JSON.stringify(event));
+    return poll.id;
+  }
 
-        return poll.id;
+  public async getAttendees(eventId: number): Promise<Attendee[]> {
+    const event = await this.getEvent(eventId);
+
+    return event?.attendees ?? [];
+  }
+
+  public async getPolls(eventId: number): Promise<Poll[]> {
+    const event = await this.getEvent(eventId);
+
+    return event?.polls ?? [];
+  }
+
+  public async removeAttendee(eventId: number, attendeeId: number): Promise<boolean> {
+    const event = await this.getEvent(eventId);
+    if (null === event) {
+      return false;
     }
 
-    public async getAttendees(eventId: number): Promise<Attendee[]> {
-        const event = await this.getEvent(eventId);
-
-        return event?.attendees ?? [];
+    let attendees = await this.getAttendees(eventId);
+    const indexToRemove = attendees.findIndex((curr: Attendee) => curr.id === attendeeId);
+    if (indexToRemove === -1) {
+      return false;
     }
 
-    public async getPolls(eventId: number): Promise<Poll[]> {
-        const event = await this.getEvent(eventId);
+    attendees = attendees.filter((curr: Attendee) => curr.id !== attendeeId);
+    event.attendees = attendees;
 
-        return event?.polls ?? [];
+    redisClient.set('event:' + eventId.toString(), JSON.stringify(event));
+    return true;
+  }
+
+  private async getEvent(eventId: number): Promise<Event | null> {
+    const res = await redisClient.get('event:' + eventId.toString());
+    if (res && res.length > 0) {
+      return JSON.parse(res.toString());
     }
 
-    public async removeAttendee(eventId: number, attendeeId: number): Promise<boolean> {
-        const event = await this.getEvent(eventId);
-        if(null === event) {
-            return false;
-        }
-
-        let attendees = await this.getAttendees(eventId);
-        const indexToRemove = attendees.findIndex((curr: Attendee) => curr.id === attendeeId);
-        if(indexToRemove === -1) {
-            return false;
-        }
-
-        attendees = attendees.filter((curr: Attendee) => curr.id !== attendeeId);
-        event.attendees = attendees;
-
-        redisClient.set('event:' + eventId.toString(), JSON.stringify(event));
-        return true;
-    }
-
-    private async getEvent(eventId: number): Promise<Event|null>
-    {
-        const res = await redisClient.get('event:' + eventId.toString());
-        if(res && res.length > 0) {
-            return JSON.parse(res.toString());
-        }
-
-        return null;
-    }
+    return null;
+  }
 }
 
 const eventManager = new EventManager();

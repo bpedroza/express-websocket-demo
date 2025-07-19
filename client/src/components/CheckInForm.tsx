@@ -1,19 +1,14 @@
 import { useActionState, useEffect } from "react";
+import API from "../API";
 
 async function addAttendeeAction(prevState: { success: boolean | null, message: string }, formData: FormData): Promise<{ success: boolean | null, message: string }> {
 
   try {
-    const response = await fetch("/api/attendee/check-in", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        eventId: formData.get('eventId'),
-        name: formData.get('name'),
-        email: formData.get('email'),
-        isAdmin: formData.get('isAdmin'),
-      }),
+    const response = await API.postJSON('/attendee/check-in', {
+      eventId: formData.get('eventId'),
+      name: formData.get('name'),
+      email: formData.get('email'),
+      isAdmin: formData.get('isAdmin'),
     });
 
     if (response.status == 204) {
@@ -39,11 +34,11 @@ async function addAttendeeAction(prevState: { success: boolean | null, message: 
 
 }
 
-function CheckInForm({ eventId, buttonText, showAdminCheck = false, onSuccess = () => {} }: { eventId: string, buttonText: string, showAdminCheck?: boolean, onSuccess?: Function }) {
+function CheckInForm({ eventId, buttonText, showAdminCheck = false, onSuccess = () => { } }: { eventId: string, buttonText: string, showAdminCheck?: boolean, onSuccess?: Function }) {
   const [formState, formAction, isPending] = useActionState(addAttendeeAction, { success: null, message: '' });
 
   useEffect(() => {
-    if(formState.success === true) {
+    if (formState.success === true) {
       onSuccess();
     }
   }, [formState]);

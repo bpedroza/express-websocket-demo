@@ -7,14 +7,14 @@ const router = express.Router();
 router.post('/', express.json(), async (req, res) => {
   const isAdmin = req.session.isAdmin ?? false;
   const eventId = req.session.eventId;
-  if(!isAdmin) {
+  if (!isAdmin) {
     return res.status(403).send();
   }
   const poll = {
     id: -1,
     question: req.body.question,
     options: req.body.options,
-    answers: req.body.options.map((opt: string) => { return { option: opt, count: 0}; })
+    answers: req.body.options.map((opt: string) => { return { option: opt, count: 0 }; })
   };
   poll.id = await eventManager.addPoll(eventId, poll);
 

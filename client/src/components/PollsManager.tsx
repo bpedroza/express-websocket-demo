@@ -1,17 +1,12 @@
-import { useActionState, useRef, useState} from "react";
+import { useActionState, useRef, useState } from "react";
+import API from "../API";
 
 async function addPollAction(prevState: { success: boolean | null, message: string, question: string }, formData: FormData): Promise<{ success: boolean | null, message: string, question: string }> {
 
   try {
-    const response = await fetch("/api/poll", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        question: formData.get('question'),
-        options: formData.getAll('options'),
-      }),
+    const response = await API.postJSON("/poll", {
+      question: formData.get('question'),
+      options: formData.getAll('options'),
     });
 
     if (response.status == 204) {
@@ -52,6 +47,13 @@ function PollsManager() {
       currQuestion.current.value = '';
     }
   }
+
+  const handleEnterPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleAddQuestion();
+      e.preventDefault();
+    }
+  }
   return (
     <>
       <h2>Polls manager here!</h2>
@@ -61,19 +63,21 @@ function PollsManager() {
           <input name="question" defaultValue={formState.question} required className="form-control" />
         </div>
         <h3>Options</h3>
-        <input type="text" name="option" className="input" ref={currQuestion} />
+        <input type="text" name="option" onKeyDown={handleEnterPress} className="input" ref={currQuestion} />
         <button type="button" onClick={handleAddQuestion} style={{ marginLeft: '4px' }} className="sm outline">Add Option</button>
         {options.length == 0 && <p>Add an option.</p>}
-        { options.map((option) => <input type="hidden" name="options[]" value={option} />) }
+        {options.map((option) => <input key={option} type="hidden" name="options[]" value={option} />)}
         <table>
-          {options.map((option) =>
-          (
-            <tr key={option}>
-              <td>{option}</td>
-              <td><button type="button" className="danger sm">&times;</button></td>
-            </tr>
-          )
-          )}
+          <tbody>
+            {options.map((option) =>
+            (
+              <tr key={option}>
+                <td>{option}</td>
+                <td><button type="button" className="danger sm">&times;</button></td>
+              </tr>
+            )
+            )}
+          </tbody>
         </table>
         <button disabled={isPending}>Save Poll</button>
       </form>

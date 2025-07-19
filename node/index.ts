@@ -7,6 +7,8 @@ import eventManager from './EventManager.ts';
 import EventSeeder from './EventSeeder.ts';
 import session from "express-session";
 import type { SessionSocket } from './types/SocketSession.ts';
+import { pollRouter } from './routes/polls.ts';
+import { pollHandler } from './socket_handlers/polls.ts';
 
 const app = express();
 const server = createServer(app);
@@ -23,6 +25,7 @@ ws.engine.use(sessionMiddleware);
 EventSeeder.seed();
 
 app.use('/attendee', attendeeRouter);
+app.use('/poll', pollRouter);
 
 ws.on('connection', async (socket: SessionSocket) => {
     const eventId = socket.request.session.eventId;
@@ -30,6 +33,7 @@ ws.on('connection', async (socket: SessionSocket) => {
     console.log('A user attempted to connect for event: ' + eventId);
     if(exists) {
       attendeeHandler(socket, eventId);
+      pollHandler(socket, eventId);
     } else {
       socket.emit('event:invalid');
       socket.disconnect();

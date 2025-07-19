@@ -137,7 +137,7 @@ header #nav-title {
   padding: 10px;
 }
 
-#attendee-list {
+#attendee-list, #poll-list {
   list-style-type: none;
   margin: 0;
   padding: 0;
@@ -162,6 +162,34 @@ header #nav-title {
 
 #attendee-list li button:hover {
   color: #333;
+}
+
+.poll-wrapper {
+  border: 1px solid;
+  border-radius: 8px;
+}
+
+.poll-heading, .poll-options-wrapper {
+    padding: 8px;
+}
+
+.poll-heading {
+  font-weight: bold;
+  font-size: 110%;
+  border-bottom: 1px solid;
+}
+
+.poll-option {
+  margin-bottom: 4px;
+  border: 1px solid;
+  border-radius: 8px;
+  padding: 4px 8px;
+  transition: background-color ease-in-out 0.2s;
+}
+
+.poll-option:hover {
+  cursor: pointer;
+  background-color: #e9e9e9;
 }
 
 #status-bubble {
