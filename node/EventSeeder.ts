@@ -8,9 +8,10 @@ export default class EventSeeder {
         maxAttendeeId: 22,
         maxPollId: 1,
         polls: [{
+          id: 1,
           question: 'Are you having fun?',
           options: ['Yes', 'No', 'I\'m getting there'],
-          answers: [{option: 'Yes', count: 12}, {option: 'No', count: 1}, {option: 'I\'m getting there', count: 3}]
+          answers: [{option: 'Yes', voters: [1,12,19]}, {option: 'No', voters: [22]}, {option: 'I\'m getting there', voters: [3]}]
         }],
         attendees: [{
           id: 1,

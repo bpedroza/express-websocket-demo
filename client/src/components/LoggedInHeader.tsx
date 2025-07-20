@@ -1,15 +1,20 @@
 import { useContext, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router";
 import { SocketContext } from "../context/SocketContext";
+import { UserContext } from "../context/UserContext";
 
 function LoggedInHeader({ eventId }: { eventId: string }) {
   const { isConnected, eventIsValid } = useContext(SocketContext);
   const nav = useNavigate();
+  const user = useContext(UserContext);
 
   useEffect(() => {
     if (!eventIsValid) {
-
-      nav('/');
+      if(user.eventId > 0) {
+        nav('/?event=' + user.eventId);
+      } else {
+        nav('/');
+      }
     }
   }, [eventIsValid])
 
@@ -21,7 +26,7 @@ function LoggedInHeader({ eventId }: { eventId: string }) {
       </div>
       <div id="nav-links">
         <NavLink to={`/event/${eventId}`}>Event Home</NavLink>
-        <NavLink to={`/event/${eventId}/admin`}>Admin</NavLink>
+        {user.isAdmin && <NavLink to={`/event/${eventId}/admin`}>Admin</NavLink>}
       </div>
     </header>
   );

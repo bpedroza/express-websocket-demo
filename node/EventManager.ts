@@ -52,6 +52,39 @@ class EventManager {
     return poll.id;
   }
 
+  public async addPollVote(eventId: number, userId: number, pollId: number, answer: string): Promise<boolean> {
+    const event = await this.getEvent(eventId);
+    if (null === event) {
+      return false;
+    }
+
+    let answered = false;
+    let polls = await this.getPolls(eventId);
+    polls = polls.map((poll) => {
+      if (poll.id == pollId) {
+        poll.answers = poll.answers.map((ans) => {
+          if (ans.option == answer) {
+            ans.voters.push(userId);
+            answered = true;
+          }
+
+          return ans;
+        });
+      }
+
+      return poll;
+    });
+
+    if(!answered) {
+      return false;
+    }
+
+    event.polls = polls;
+    redisClient.set('event:' + eventId.toString(), JSON.stringify(event));
+
+    return true;
+  }
+
   public async getAttendees(eventId: number): Promise<Attendee[]> {
     const event = await this.getEvent(eventId);
 

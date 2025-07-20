@@ -1,6 +1,7 @@
 import express from "express";
 import eventManager from '../EventManager.ts';
 import { eventBus } from '../utils/eventBus.ts';
+import type { User } from "../types/User.ts";
 
 const router = express.Router();
 
@@ -19,9 +20,17 @@ router.post('/check-in', express.json(), async (req, res) => {
     if (!isAdmin) {
       req.session.userId = attendee.id;
       req.session.eventId = eventId;
-      req.session.isAdmin = req.body.isAdmin ?? false;
+      req.session.isAdmin = req.body.isAdmin;
     }
-    return res.status(204).send();
+
+    const resp: User = {
+      id: attendee.id,
+      eventId,
+      isAdmin: req.body.isAdmin,
+      name: attendee.name,
+      email: attendee.email
+    };
+    return res.json(resp);
   }
 
   return res.status(422).json({ 'message': 'Invalid Event ID' });
