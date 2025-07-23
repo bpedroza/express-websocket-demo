@@ -37,6 +37,11 @@ const events = {
         email: 'bbuilder@example.com',
         name: 'Bobby The Builder',
       },
+      {
+        id: 13,
+        email: 'aarmstrong@example.com',
+        name: 'Amanda Armstrong',
+      },
     ]
   },
   17: {
@@ -50,9 +55,7 @@ const events = {
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-app.get('/', (req, res) => {
-  res.sendFile(join(__dirname, 'index.html'));
-});
+app.use(express.static(join(__dirname, 'public')));
 
 app.post('/attendee-signin', express.json(), (req, res) => {
   const eventId = req.body.eventId ?? -1;
