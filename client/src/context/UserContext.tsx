@@ -1,6 +1,7 @@
 import type React from 'react';
-import { createContext, useContext, useReducer, useState, type ActionDispatch } from 'react';
+import { createContext, useContext, useEffect, useReducer, type ActionDispatch } from 'react';
 import type { User } from '../types/User.ts';
+import API from '../API.tsx';
 
 const userDefault = {
     id: -1,
@@ -23,6 +24,16 @@ export type UserProviderProps = {
 
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     const [user, dispatch] = useReducer(userReducer, userDefault);
+
+    useEffect(() => {
+        if(user.id == -1) {
+            API.getJSON('/attendee/session').then((resp) => {
+                resp.json().then((json: User) => {
+                    dispatch({type: 'LOGIN', payload: json});
+                })
+            });
+        }
+    }, [user]);
 
     return (
         <UserContext value={user}>

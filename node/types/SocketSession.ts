@@ -7,6 +7,8 @@ declare module "express-session" {
     eventId: number | undefined;
     userId: number;
     isAdmin: boolean;
+    name?: string;
+    email?: string;
   }
 }
 

@@ -5,7 +5,7 @@ import API from '../API';
 
 function Poll({ poll }: { poll: PollType }) {
   const user = useContext(UserContext);
-  console.log(user);
+  console.log(poll);
   const handleVote = (answer: string) => {
     API.postJSON("/poll/vote", {
       pollId: poll.id,

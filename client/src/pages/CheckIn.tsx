@@ -24,7 +24,6 @@ function CheckIn () {
             type: 'LOGIN',
             payload: state.user
         });
-        console.log(state);
         socket.connect();
         return nav('/event/' + eventId);
     }

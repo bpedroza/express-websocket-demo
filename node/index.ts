@@ -9,11 +9,14 @@ import session from "express-session";
 import type { SessionSocket } from './types/SocketSession.ts';
 import { pollRouter } from './routes/polls.ts';
 import { pollHandler } from './socket_handlers/polls.ts';
+import { RedisStore } from 'connect-redis';
+import { redisClient } from './redisClient.ts';
 
 const app = express();
 const server = createServer(app);
 const ws = new Server(server);
 const sessionMiddleware = session({
+  store: new RedisStore({client: redisClient}),
   secret: 'itsMyLittleSecret',
   cookie: {},
   saveUninitialized: false

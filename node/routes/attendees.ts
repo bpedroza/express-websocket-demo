@@ -5,6 +5,17 @@ import type { User } from "../types/User.ts";
 
 const router = express.Router();
 
+router.get('/session', express.json(), async (req, res) => {
+  const resp: User = {
+    id: req.session.userId ?? -1,
+    eventId: req.session.eventId ?? -1,
+    isAdmin: req.session.isAdmin ?? false,
+    name: req.session.name ?? '',
+    email: req.session.email ?? ''
+  };
+  return res.json(resp);
+});
+
 router.post('/check-in', express.json(), async (req, res) => {
   const eventId = req.body.eventId ?? undefined;
   const attendee = {
@@ -21,6 +32,8 @@ router.post('/check-in', express.json(), async (req, res) => {
       req.session.userId = attendee.id;
       req.session.eventId = eventId;
       req.session.isAdmin = req.body.isAdmin;
+      req.session.name = attendee.name;
+      req.session.email = attendee.email;
     }
 
     const resp: User = {
@@ -41,7 +54,7 @@ router.post('/check-out', express.json(), async (req, res) => {
   const attendeeId = req.body.attendeeId ?? -1;
   const isAdmin = req.session.isAdmin ?? false;
 
-  if(!isAdmin && attendeeId != req.session.userId) {
+  if (!isAdmin && attendeeId != req.session.userId) {
     return res.status(403).send();
   }
 
@@ -49,7 +62,7 @@ router.post('/check-out', express.json(), async (req, res) => {
 
   if (removed) {
     eventBus.emit('attendee:signout', { eventId: req.body.eventId, attendeeId });
-    
+
     if (attendeeId == req.session.userId) {
       return req.session.destroy(err => {
         if (err) {
